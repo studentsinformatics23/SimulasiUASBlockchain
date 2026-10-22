@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 24px; font-weight: bold; fill: #f8fafc; }
+      .subtitle { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; }
+      .layer-title { font-family: system-ui, -apple-system, sans-serif; font-size: 15px; font-weight: 600; fill: #38bdf8; letter-spacing: 0.5px; }
+      .box { rx: 10px; ry: 10px; stroke-width: 1.5px; }
+      .box-client { fill: #1e293b; stroke: #3b82f6; }
+      .box-provider { fill: #1e293b; stroke: #f59e0b; }
+      .box-chain { fill: #1e293b; stroke: #10b981; }
+      .box-offchain { fill: #1e293b; stroke: #8b5cf6; }
+      .box-sub { fill: #0f172a; stroke: #475569; stroke-width: 1px; rx: 8px; ry: 8px; }
+      .node-text { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 600; fill: #f1f5f9; text-anchor: middle; }
+      .node-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .arrow-dashed { stroke: #8b5cf6; stroke-width: 2; stroke-dasharray: 5,5; fill: none; marker-end: url(#arrowhead-purple); }
+      .badge { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: bold; fill: #e2e8f0; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b" />
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8b5cf6" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="820" class="bg" />
+
+  <!-- Header -->
+  <text x="50" y="45" class="title">Arsitektur Verifikasi Kredensial Akademik Blockchain</text>
+  <text x="50" y="70" class="subtitle">UAS Mata Kuliah Blockchain — Universitas Siliwangi TA 2026/2027 (Anggota A: Smart Contract &amp; Arsitektur)</text>
+
+  <!-- 1. Client Layer -->
+  <rect x="50" y="100" width="1000" height="130" fill="#131e33" stroke="#334155" stroke-width="1.5" rx="12" />
+  <text x="70" y="125" class="layer-title">1. LAPISAN PENGGUNA &amp; CLIENT FRONTEND (ANGGOTA C)</text>
+  
+  <rect x="70" y="145" width="220" height="70" class="box box-client" />
+  <text x="180" y="175" class="node-text">Admin Portal</text>
+  <text x="180" y="195" class="node-desc">Role Management (Issuer/Revoker)</text>
+
+  <rect x="320" y="145" width="220" height="70" class="box box-client" />
+  <text x="430" y="175" class="node-text">Issuer Portal (Kampus)</text>
+  <text x="430" y="195" class="node-desc">Single / Batch Issue &amp; Revoke</text>
+
+  <rect x="570" y="145" width="220" height="70" class="box box-client" />
+  <text x="680" y="175" class="node-text">Holder Portal (Mahasiswa)</text>
+  <text x="680" y="195" class="node-desc">Simpan PDF &amp; Grant Access</text>
+
+  <rect x="820" y="145" width="210" height="70" class="box box-client" />
+  <text x="925" y="175" class="node-text">Verifier Portal (Publik)</text>
+  <text x="925" y="195" class="node-desc">Cek Hash &amp; Status Dokumen</text>
+
+  <!-- 2. Provider & Wallet Bridge -->
+  <rect x="50" y="260" width="1000" height="100" fill="#131e33" stroke="#334155" stroke-width="1.5" rx="12" />
+  <text x="70" y="285" class="layer-title">2. LAPISAN PROVIDER &amp; WEB3 BRIDGE</text>
+
+  <rect x="180" y="300" width="340" height="48" class="box box-provider" />
+  <text x="350" y="325" class="node-text">MetaMask / Injected Web3 Wallet</text>
+  <text x="350" y="340" class="node-desc">Penandatangan Transaksi Kriptografis (Admin, Issuer, Holder)</text>
+
+  <rect x="580" y="300" width="340" height="48" class="box box-provider" />
+  <text x="750" y="325" class="node-text">Ethers.js / RPC Provider (Read-Only)</text>
+  <text x="750" y="340" class="node-desc">Panggilan Cepat eth_call tanpa Gas Fee (Verifier Publik)</text>
+
+  <!-- 3. Blockchain Execution Layer -->
+  <rect x="50" y="390" width="620" height="390" fill="#131e33" stroke="#334155" stroke-width="1.5" rx="12" />
+  <text x="70" y="415" class="layer-title">3. BLOCKCHAIN EXECUTION LAYER (HARDHAT LOCAL NETWORK)</text>
+
+  <rect x="70" y="435" width="580" height="170" class="box box-chain" />
+  <text x="360" y="465" class="node-text" style="fill:#34d399; font-size:15px;">Smart Contract: AcademicCredential.sol</text>
+  <text x="360" y="485" class="node-desc">OpenZeppelin AccessControl, Pausable, Struct-based Storage</text>
+
+  <!-- Contract Functions Blocks -->
+  <rect x="85" y="505" width="170" height="85" class="box-sub" />
+  <text x="170" y="525" class="node-text" style="font-size:11px;">Access Control</text>
+  <text x="170" y="545" class="node-desc">addIssuer, removeIssuer</text>
+  <text x="170" y="565" class="node-desc">addRevoker, removeRevoker</text>
+
+  <rect x="275" y="505" width="180" height="85" class="box-sub" />
+  <text x="365" y="525" class="node-text" style="font-size:11px;">Lifecycle Kredensial</text>
+  <text x="365" y="545" class="node-desc">issueCredential, issueBatch</text>
+  <text x="365" y="565" class="node-desc">revokeCredential</text>
+
+  <rect x="475" y="505" width="160" height="85" class="box-sub" />
+  <text x="555" y="525" class="node-text" style="font-size:11px;">Consent &amp; Verify</text>
+  <text x="555" y="545" class="node-desc">grantAccess, hasAccess</text>
+  <text x="555" y="565" class="node-desc">verifyCredential (View)</text>
+
+  <!-- Ledger & Event Sub-blocks -->
+  <rect x="70" y="625" width="280" height="135" class="box-sub" />
+  <text x="210" y="650" class="node-text">World State &amp; Storage</text>
+  <text x="210" y="675" class="node-desc">mapping(string =&gt; Credential) credentials</text>
+  <text x="210" y="695" class="node-desc">mapping(string =&gt; mapping =&gt; bool) hasAccess</text>
+  <text x="210" y="715" class="node-desc">docHash, status, timestamps, addresses</text>
+  <text x="210" y="735" class="node-desc" style="fill:#38bdf8;">(Hanya Hash &amp; Metadata Integritas)</text>
+
+  <rect x="370" y="625" width="280" height="135" class="box-sub" />
+  <text x="510" y="650" class="node-text">Audit Trail &amp; Events</text>
+  <text x="510" y="675" class="node-desc">event IssuerAdded / Removed</text>
+  <text x="510" y="695" class="node-desc">event CredentialIssued</text>
+  <text x="510" y="715" class="node-desc">event CredentialRevoked</text>
+  <text x="510" y="735" class="node-desc">event AccessGranted</text>
+
+  <!-- 4. Off-Chain Storage Layer -->
+  <rect x="700" y="390" width="350" height="390" fill="#131e33" stroke="#334155" stroke-width="1.5" rx="12" />
+  <text x="720" y="415" class="layer-title">4. OFF-CHAIN LAYER (PRIVASI &amp; PII)</text>
+
+  <rect x="720" y="435" width="310" height="160" class="box box-offchain" />
+  <text x="875" y="465" class="node-text" style="fill:#c084fc;">Arsip Akademik &amp; Database Kampus</text>
+  <text x="875" y="490" class="node-desc">Data Pribadi Mahasiswa (PII):</text>
+  <text x="875" y="510" class="node-desc">• Nama Lengkap, Tempat Tanggal Lahir</text>
+  <text x="875" y="530" class="node-desc">• Nomor Induk Mahasiswa (NIM), IPK</text>
+  <text x="875" y="550" class="node-desc">• Berkas PDF Ijazah &amp; Transkrip Lengkap</text>
+  <text x="875" y="575" class="node-desc" style="fill:#f43f5e; font-weight:bold;">Tidak Boleh Disimpan On-Chain (UU PDP)</text>
+
+  <rect x="720" y="625" width="310" height="135" class="box box-offchain" />
+  <text x="875" y="655" class="node-text" style="fill:#c084fc;">Client Hasher Engine (Browser)</text>
+  <text x="875" y="685" class="node-desc">SHA-256 / Keccak-256 Generator</text>
+  <text x="875" y="705" class="node-desc">PDF Input -&gt; bytes32 docHash</text>
+  <text x="875" y="730" class="node-desc" style="fill:#a855f7;">Hanya 32-byte hash yang dikirim ke on-chain</text>
+
+  <!-- Arrows -->
+  <path d="M 180 215 L 180 250 L 300 250 L 300 300" class="arrow" />
+  <path d="M 430 215 L 430 300" class="arrow" />
+  <path d="M 680 215 L 680 250 L 400 250 L 400 300" class="arrow" />
+  <path d="M 925 215 L 925 300" class="arrow" />
+
+  <path d="M 350 350 L 350 435" class="arrow" />
+  <path d="M 750 350 L 750 380 L 550 380 L 550 435" class="arrow" />
+
+  <!-- Offchain Data Flow -->
+  <path d="M 720 700 L 670 700 L 670 540 L 650 540" class="arrow-dashed" />
+  <text x="685" y="525" class="badge" fill="#c084fc">docHash</text>
+</svg>
