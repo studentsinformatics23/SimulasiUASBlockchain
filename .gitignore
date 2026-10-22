@@ -3,6 +3,8 @@ package-lock.json
 
 artifacts/
 cache/
+coverage/
+coverage.json
 
 .env
 *.pem
