@@ -87,6 +87,20 @@ npx hardhat test
 ```bash
 npx hardhat coverage
 ```
+**Hasil Pengujian Aktual**
+
+Pengujian smart contract `AcademicCredential.sol` menghasilkan cakupan sebagai berikut:
+
+| Metrik | Coverage |
+|---|---:|
+| Statements | 100% |
+| Branches | 89.71% |
+| Functions | 100% |
+| Lines | 100% |
+
+Hasil ini menunjukkan bahwa seluruh statement, fungsi, dan baris kode telah tercakup oleh pengujian yang dijalankan. Branch coverage sebesar 89.71% menunjukkan bahwa masih terdapat beberapa jalur keputusan yang belum tercakup.
+
+Jumlah pengujian unit yang berhasil dijalankan: **35 passing**.
 
 ### 6. Menjalankan Local Blockchain & Deploy Kontrak
 Jalankan node Hardhat lokal pada terminal pertama:
