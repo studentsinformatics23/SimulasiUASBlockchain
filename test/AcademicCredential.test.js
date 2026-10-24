@@ -81,6 +81,36 @@ describe("AcademicCredential", function () {
         contract.connect(unauthorized).addIssuer(unauthorized.address)
       ).to.be.revertedWithCustomError(contract, "AccessControlUnauthorizedAccount");
     });
+
+    it("Admin tidak boleh menambahkan issuer dengan alamat kosong", async function () {
+      await expect(
+        contract.connect(admin).addIssuer(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(contract, "InvalidAddress");
+    });
+
+    it("Admin tidak boleh menambahkan revoker dengan alamat kosong", async function () {
+      await expect(
+        contract.connect(admin).addRevoker(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(contract, "InvalidAddress");
+    });
+
+    it("Akun non-admin tidak boleh mencabut role Issuer", async function () {
+      await expect(
+        contract.connect(unauthorized).removeIssuer(issuer.address)
+      ).to.be.revertedWithCustomError(
+        contract,
+        "AccessControlUnauthorizedAccount"
+      );
+    });
+
+    it("Akun non-admin tidak boleh mencabut role Revoker", async function () {
+      await expect(
+        contract.connect(unauthorized).removeRevoker(revoker.address)
+      ).to.be.revertedWithCustomError(
+        contract,
+        "AccessControlUnauthorizedAccount"
+      );
+    });
   });
 
   describe("2. Penerbitan Kredensial Tunggal (issueCredential)", function () {
@@ -126,6 +156,39 @@ describe("AcademicCredential", function () {
       await expect(
         contract.connect(issuer).issueCredential("UNSIL/INF/2026/001", holder1.address, ethers.ZeroHash, 0)
       ).to.be.revertedWithCustomError(contract, "EmptyDocumentHash");
+    });
+
+    it("Berhasil mengambil ID kredensial berdasarkan indeks", async function () {
+      await contract.connect(issuer).issueCredential(
+        "UNSIL/INF/2026/001",
+        holder1.address,
+        DOC_HASH_1,
+        0
+      );
+
+      const id = await contract.getCredentialIdByIndex(0);
+      expect(id).to.equal("UNSIL/INF/2026/001");
+    });
+
+    it("Gagal mengambil ID kredensial jika indeks tidak tersedia", async function () {
+      await expect(
+        contract.getCredentialIdByIndex(999)
+      ).to.be.revertedWith("Index out of bounds");
+    });
+
+    it("Gagal menerbitkan kredensial dengan waktu kedaluwarsa yang sudah lewat", async function () {
+      const waktuSekarang = await time.latest();
+      const waktuLampau = waktuSekarang - 3600;
+
+      await expect(
+        contract.connect(issuer).issueCredential(
+          "CRED-EXPIRED-001",
+          holder1.address,
+          DOC_HASH_1,
+          waktuLampau
+        )
+      ).to.be.revertedWithCustomError(contract, "InvalidExpirationTime")
+        .withArgs(waktuLampau);
     });
   });
 
@@ -203,6 +266,13 @@ describe("AcademicCredential", function () {
         contract.connect(revoker).revokeCredential("UNSIL/INF/2026/001", "Alasan kedua")
       ).to.be.revertedWithCustomError(contract, "CredentialAlreadyRevoked");
     });
+
+    it("Gagal mencabut kredensial yang tidak ditemukan", async function () {
+      await expect(
+        contract.connect(revoker).revokeCredential("ID-TIDAK-ADA", "Pengujian")
+      ).to.be.revertedWithCustomError(contract, "CredentialNotFound")
+        .withArgs("ID-TIDAK-ADA");
+    });
   });
 
   describe("5. Persetujuan Akses oleh Holder (grantAccess & hasAccess)", function () {
@@ -225,6 +295,13 @@ describe("AcademicCredential", function () {
       await expect(
         contract.connect(unauthorized).grantAccess("UNSIL/INF/2026/001", verifier.address)
       ).to.be.revertedWithCustomError(contract, "NotCredentialHolder");
+    });
+
+    it("Gagal memberikan akses untuk kredensial yang tidak ditemukan", async function () {
+      await expect(
+        contract.connect(holder1).grantAccess("ID-TIDAK-ADA", verifier.address)
+      ).to.be.revertedWithCustomError(contract, "CredentialNotFound")
+        .withArgs("ID-TIDAK-ADA");
     });
   });
 
@@ -282,6 +359,22 @@ describe("AcademicCredential", function () {
       expect(result.isValid).to.be.false;
       expect(result.status).to.equal(Status.NotFound);
     });
+
+
+    it("Status Revoked tetap diprioritaskan jika hash dokumen salah", async function () {
+      await contract.connect(revoker).revokeCredential(
+        credId,
+        "Kredensial dibatalkan"
+      );
+
+      const result = await contract.verifyCredential(
+        credId,
+        DOC_HASH_TAMPERED
+      );
+
+      expect(result.isValid).to.be.false;
+      expect(result.status).to.equal(Status.Revoked);
+    });
   });
 
   describe("7. Emergency Pause Mechanism", function () {
@@ -298,5 +391,47 @@ describe("AcademicCredential", function () {
         contract.connect(issuer).issueCredential("UNSIL/INF/2026/001", holder1.address, DOC_HASH_1, 0)
       ).to.emit(contract, "CredentialIssued");
     });
+
+    it("Pause harus menghentikan penerbitan batch", async function () {
+      await contract.connect(admin).pause();
+
+      const batch = [
+        {
+          id: "BATCH-PAUSED-001",
+          holder: holder1.address,
+          docHash: DOC_HASH_1,
+          expiresAt: 0,
+        },
+      ];
+
+      await expect(
+        contract.connect(issuer).issueBatch(batch)
+      ).to.be.revertedWithCustomError(contract, "EnforcedPause");
+    });
+
+    it("Pause harus menghentikan pemberian akses", async function () {
+      await contract.connect(issuer).issueCredential(
+        "UNSIL/INF/2026/PAUSE",
+        holder1.address,
+        DOC_HASH_1,
+        0
+      );
+
+      await contract.connect(admin).pause();
+
+      await expect(
+        contract.connect(holder1).grantAccess(
+          "UNSIL/INF/2026/PAUSE",
+          verifier.address
+        )
+      ).to.be.revertedWithCustomError(contract, "EnforcedPause");
+    });
+  });
+
+  it("Gagal mengambil kredensial yang tidak ditemukan", async function () {
+    await expect(
+      contract.getCredential("ID-TIDAK-ADA")
+    ).to.be.revertedWithCustomError(contract, "CredentialNotFound")
+      .withArgs("ID-TIDAK-ADA");
   });
 });
