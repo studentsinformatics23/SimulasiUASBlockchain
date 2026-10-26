@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulasi Kredensial Akademik - DApp</title>
+<style>
+  :root { --g:#1B5E20; --l:#E8F5E9; --b:#cfd8d0; --t:#1d1d1d; --m:#5b6b5d; --r:#b00020; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 system-ui, Arial, sans-serif; color:var(--t); background:#f6f8f6; }
+  header { background:var(--g); color:#fff; padding:14px 20px; }
+  header h1 { margin:0 0 2px; font-size:18px; }
+  header small { opacity:.85; }
+  main { max-width:900px; margin:0 auto; padding:16px; }
+  .card { background:#fff; border:1px solid var(--b); border-radius:8px; padding:14px; margin-bottom:14px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  label { display:block; font-weight:600; margin:10px 0 3px; }
+  input, textarea { width:100%; padding:8px; border:1px solid var(--b); border-radius:6px; font:inherit; }
+  input[type=file] { padding:5px; }
+  button { background:var(--g); color:#fff; border:0; padding:8px 14px; border-radius:6px; cursor:pointer; font:inherit; }
+  button.sec { background:#fff; color:var(--g); border:1px solid var(--g); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .tabs button { background:#fff; color:var(--g); border:1px solid var(--g); }
+  .tabs button.on { background:var(--g); color:#fff; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; background:var(--l); color:var(--g); font-size:12px; margin-right:4px; }
+  .badge.off { background:#eee; color:#888; }
+  .warn { color:var(--r); }
+  .muted { color:var(--m); font-size:12px; }
+  .mono { font-family: ui-monospace, Consolas, monospace; font-size:12px; word-break:break-all; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { border:1px solid var(--b); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:var(--l); }
+  .res { margin-top:10px; padding:10px; border-radius:6px; background:var(--l); }
+  .res.bad { background:#fdecea; }
+  .hidden { display:none; }
+  #log .entry { border-left:4px solid var(--g); padding:6px 10px; margin-bottom:8px; background:#fafafa; }
+  #log .entry.err { border-color:var(--r); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Simulasi Verifikasi Kredensial Akademik</h1>
+  <small>Blockchain KP70067008 - Universitas Siliwangi - jaringan lokal Hardhat (data dummy)</small>
+</header>
+<main>
+
+<div class="card">
+  <div class="row">
+    <button id="btnConnect">Hubungkan Wallet</button>
+    <button id="btnNet" class="sec hidden">Pindah ke Hardhat Local (31337)</button>
+    <span id="acct" class="muted">Belum terhubung</span>
+  </div>
+  <div id="roles" style="margin-top:8px"></div>
+  <label for="addr">Alamat kontrak AcademicCredential</label>
+  <div class="row">
+    <input id="addr" style="flex:1" value="0x5FbDB2315678afecb367f032d93F642f64180aa3">
+    <button id="btnUse" class="sec">Pakai alamat ini</button>
+  </div>
+  <div id="state" class="muted" style="margin-top:6px"></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button data-t="admin" class="on">Admin</button>
+  <button data-t="issuer">Issuer</button>
+  <button data-t="holder">Holder (Mahasiswa)</button>
+  <button data-t="verifier">Verifier (Publik)</button>
+</div>
+
+<section id="p-admin" class="card">
+  <h3>Portal Admin</h3>
+  <p class="muted">Kelola peran. Hanya akun dengan DEFAULT_ADMIN_ROLE yang berhasil.</p>
+  <label for="roleAddr">Alamat akun</label>
+  <input id="roleAddr" placeholder="0x...">
+  <div class="row" style="margin-top:10px">
+    <button data-act="addIssuer">Tambah Issuer</button>
+    <button data-act="removeIssuer" class="sec">Hapus Issuer</button>
+    <button data-act="addRevoker">Tambah Revoker</button>
+    <button data-act="removeRevoker" class="sec">Hapus Revoker</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button data-act="pause" class="sec">Pause kontrak</button>
+    <button data-act="unpause" class="sec">Unpause kontrak</button>
+  </div>
+</section>
+
+<section id="p-issuer" class="card hidden">
+  <h3>Portal Issuer</h3>
+  <p class="muted">Hash dihitung di browser (Keccak-256). Berkas dan data pribadi tidak dikirim ke blockchain.</p>
+  <label for="iId">ID kredensial</label>
+  <input id="iId" value="UNSIL/INF/2026/002">
+  <label for="iHolder">Alamat wallet mahasiswa (holder)</label>
+  <input id="iHolder" placeholder="0x...">
+  <label for="iFile">Berkas dokumen (opsional, dipakai untuk menghitung hash)</label>
+  <input id="iFile" type="file">
+  <label for="iHash">Hash (0x... 32 byte) atau teks dokumen</label>
+  <input id="iHash" placeholder="mis. IJAZAH_CONTOH_UNIVERSITAS_SILIWANGI_2026">
+  <label for="iExp">Kedaluwarsa (kosongkan jika permanen)</label>
+  <input id="iExp" type="datetime-local">
+  <div class="row" style="margin-top:10px"><button id="btnIssue">Terbitkan Kredensial</button></div>
+  <hr>
+  <label for="rId">Cabut kredensial: ID</label>
+  <input id="rId" placeholder="UNSIL/INF/2026/001">
+  <label for="rReason">Alasan pencabutan</label>
+  <input id="rReason" placeholder="mis. pelanggaran akademik">
+  <div class="row" style="margin-top:10px"><button id="btnRevoke" class="sec">Cabut Kredensial</button></div>
+</section>
+
+<section id="p-holder" class="card hidden">
+  <h3>Portal Holder</h3>
+  <div class="row"><button id="btnMine" class="sec">Muat kredensial saya</button></div>
+  <div id="mine" style="margin-top:10px"></div>
+  <hr>
+  <label for="gId">Beri akses: ID kredensial</label>
+  <input id="gId" placeholder="UNSIL/INF/2026/001">
+  <label for="gVer">Alamat wallet verifier</label>
+  <input id="gVer" placeholder="0x...">
+  <div class="row" style="margin-top:10px"><button id="btnGrant">Beri Persetujuan Akses</button></div>
+</section>
+
+<section id="p-verifier" class="card hidden">
+  <h3>Portal Verifier</h3>
+  <p class="muted">Pemeriksaan bersifat baca saja (tanpa gas dan tanpa transaksi).</p>
+  <label for="vId">ID kredensial</label>
+  <input id="vId" value="UNSIL/INF/2026/001">
+  <label for="vFile">Berkas dokumen (opsional)</label>
+  <input id="vFile" type="file">
+  <label for="vHash">Hash (0x... 32 byte) atau teks dokumen</label>
+  <input id="vHash" value="IJAZAH_CONTOH_UNIVERSITAS_SILIWANGI_2026">
+  <div class="row" style="margin-top:10px">
+    <button id="btnVerify">Verifikasi</button>
+    <button id="btnAccess" class="sec">Cek izin akses saya</button>
+  </div>
+  <div id="vres"></div>
+</section>
+
+<div class="card">
+  <h3 style="margin-top:0">Log Transaksi dan Event</h3>
+  <div id="log" class="muted">Belum ada transaksi.</div>
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+const ABI = [
+  "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+  "function ISSUER_ROLE() view returns (bytes32)",
+  "function REVOKER_ROLE() view returns (bytes32)",
+  "function hasRole(bytes32 role, address account) view returns (bool)",
+  "function paused() view returns (bool)",
+  "function addIssuer(address issuer)",
+  "function removeIssuer(address issuer)",
+  "function addRevoker(address revoker)",
+  "function removeRevoker(address revoker)",
+  "function pause()",
+  "function unpause()",
+  "function issueCredential(string id, address holder, bytes32 docHash, uint256 expiresAt)",
+  "function revokeCredential(string id, string reason)",
+  "function grantAccess(string id, address verifier)",
+  "function hasAccess(string id, address verifier) view returns (bool)",
+  "function verifyCredential(string id, bytes32 docHash) view returns (bool isValid, uint8 status, address issuer, address holder, uint256 expiresAt)",
+  "function getCredential(string id) view returns (tuple(string id, address issuer, address holder, bytes32 docHash, uint256 issuedAt, uint256 expiresAt, bool isRevoked, string revokeReason, bool exists))",
+  "function totalCredentials() view returns (uint256)",
+  "function getCredentialIdByIndex(uint256 index) view returns (string)",
+  "event IssuerAdded(address indexed issuer, address indexed addedBy)",
+  "event IssuerRemoved(address indexed issuer, address indexed removedBy)",
+  "event RevokerAdded(address indexed revoker, address indexed addedBy)",
+  "event RevokerRemoved(address indexed revoker, address indexed removedBy)",
+  "event CredentialIssued(string indexed id, address indexed issuer, address indexed holder, bytes32 docHash)",
+  "event CredentialRevoked(string indexed id, address indexed revoker, string reason)",
+  "event AccessGranted(string indexed id, address indexed holder, address indexed verifier)",
+  "error InvalidAddress()",
+  "error EmptyCredentialId()",
+  "error EmptyDocumentHash()",
+  "error CredentialAlreadyExists(string id)",
+  "error CredentialNotFound(string id)",
+  "error CredentialAlreadyRevoked(string id)",
+  "error NotCredentialHolder(string id, address caller)",
+  "error InvalidBatchSize(uint256 size, uint256 max)",
+  "error InvalidExpirationTime(uint256 expiresAt)",
+  "error UnauthorizedCaller()",
+  "error AccessControlUnauthorizedAccount(address account, bytes32 neededRole)",
+  "error EnforcedPause()",
+  "error ExpectedPause()"
+];
+const STATUS = ["Tidak ditemukan", "Valid", "Hash tidak cocok (dokumen berbeda)", "Dicabut", "Kedaluwarsa"];
+const iface = new ethers.Interface(ABI);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let provider, signer, me, contract;
+
+function fmtTime(sec) {
+  const n = Number(sec);
+  return n === 0 ? "permanen" : new Date(n * 1000).toLocaleString("id-ID");
+}
+
+async function hashFrom(fileEl, textEl) {
+  if (fileEl.files && fileEl.files[0]) {
+    const buf = new Uint8Array(await fileEl.files[0].arrayBuffer());
+    return ethers.keccak256(buf);
+  }
+  const v = textEl.value.trim();
+  if (/^0x[0-9a-fA-F]{64}$/.test(v)) return v;
+  if (!v) throw new Error("Isi berkas, hash, atau teks dokumen terlebih dahulu.");
+  return ethers.keccak256(ethers.toUtf8Bytes(v));
+}
+
+function needContract() {
+  if (!contract) throw new Error("Hubungkan wallet dan pilih alamat kontrak dulu.");
+}
+
+function niceError(e) {
+  if (e && e.revert) {
+    const a = e.revert.args ? Array.from(e.revert.args).map(String).join(", ") : "";
+    return `${e.revert.name}(${a})`;
+  }
+  if (e && e.code === "ACTION_REJECTED") return "Transaksi dibatalkan di wallet.";
+  return (e && (e.shortMessage || e.reason || e.message)) || String(e);
+}
+
+function logEntry(html, isErr) {
+  const box = $("log");
+  if (box.classList.contains("muted")) { box.classList.remove("muted"); box.innerHTML = ""; }
+  const d = document.createElement("div");
+  d.className = "entry" + (isErr ? " err" : "");
+  d.innerHTML = html;
+  box.prepend(d);
+}
+
+function renderEvents(receipt) {
+  const out = [];
+  for (const l of receipt.logs) {
+    if (contract && l.address.toLowerCase() !== contract.target.toLowerCase()) continue;
+    try {
+      const p = iface.parseLog(l);
+      if (!p) continue;
+      const args = p.fragment.inputs.map((inp, i) => {
+        const v = p.args[i];
+        const shown = (v instanceof ethers.Indexed) ? `hash(${v.hash.slice(0, 18)}...)` : String(v);
+        return `${esc(inp.name)}=${esc(shown)}`;
+      }).join(", ");
+      out.push(`<b>${esc(p.name)}</b> (${args})`);
+    } catch (_) { /* log bukan dari ABI ini */ }
+  }
+  return out.length ? out.join("<br>") : "<i>tidak ada event</i>";
+}
+
+async function sendTx(label, fn) {
+  try {
+    needContract();
+    logEntry(`<b>${esc(label)}</b> - menunggu konfirmasi wallet...`);
+    const tx = await fn();
+    const r = await tx.wait();
+    logEntry(
+      `<b>${esc(label)}</b> berhasil<br>` +
+      `Tx hash: <span class="mono">${esc(r.hash)}</span><br>` +
+      `Blok: ${r.blockNumber} - Gas: ${r.gasUsed}<br>` +
+      `Event: ${renderEvents(r)}`
+    );
+    await refreshRoles();
+  } catch (e) {
+    logEntry(`<b>${esc(label)}</b> gagal: <span class="warn">${esc(niceError(e))}</span>`, true);
+  }
+}
+
+async function refreshRoles() {
+  if (!contract || !me) return;
+  try {
+    const [ra, ri, rr] = await Promise.all([
+      contract.DEFAULT_ADMIN_ROLE(), contract.ISSUER_ROLE(), contract.REVOKER_ROLE()
+    ]);
+    const [a, i, r, paused] = await Promise.all([
+      contract.hasRole(ra, me), contract.hasRole(ri, me), contract.hasRole(rr, me), contract.paused()
+    ]);
+    const b = (on, t) => `<span class="badge ${on ? "" : "off"}">${t}</span>`;
+    $("roles").innerHTML = b(a, "Admin") + b(i, "Issuer") + b(r, "Revoker");
+    $("state").textContent = paused ? "Status kontrak: DIJEDA (pause)" : "Status kontrak: aktif";
+  } catch (e) {
+    $("state").innerHTML = `<span class="warn">Tidak bisa membaca kontrak di alamat ini. Pastikan node berjalan dan kontrak sudah di-deploy.</span>`;
+  }
+}
+
+async function setup() {
+  if (!window.ethereum) { alert("MetaMask tidak ditemukan. Pasang MetaMask terlebih dahulu."); return; }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = await provider.getSigner();
+  me = await signer.getAddress();
+  const net = await provider.getNetwork();
+  $("acct").textContent = `${me} (chainId ${net.chainId})`;
+  $("btnNet").classList.toggle("hidden", net.chainId === 31337n);
+  useAddress();
+}
+
+function useAddress() {
+  if (!signer) return;
+  const a = $("addr").value.trim();
+  if (!ethers.isAddress(a)) { $("state").innerHTML = `<span class="warn">Alamat kontrak tidak valid.</span>`; return; }
+  contract = new ethers.Contract(a, ABI, signer);
+  refreshRoles();
+}
+
+async function switchNet() {
+  try {
+    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x7a69" }] });
+  } catch (e) {
+    await window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [{ chainId: "0x7a69", chainName: "Hardhat Local",
+        rpcUrls: ["http://127.0.0.1:8545"], nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 } }]
+    });
+  }
+  location.reload();
+}
+
+/* ---------- Aksi ---------- */
+document.querySelectorAll("[data-act]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const act = btn.dataset.act;
+    const target = $("roleAddr").value.trim();
+    const needsAddr = ["addIssuer", "removeIssuer", "addRevoker", "removeRevoker"].includes(act);
+    if (needsAddr && !ethers.isAddress(target)) { logEntry(`<b>${esc(act)}</b> gagal: <span class="warn">alamat akun tidak valid</span>`, true); return; }
+    sendTx(act, () => needsAddr ? contract[act](target) : contract[act]());
+  });
+});
+
+$("btnIssue").addEventListener("click", async () => {
+  try {
+    needContract();
+    const id = $("iId").value.trim();
+    const holder = $("iHolder").value.trim();
+    if (!ethers.isAddress(holder)) throw new Error("Alamat holder tidak valid.");
+    const hash = await hashFrom($("iFile"), $("iHash"));
+    const exp = $("iExp").value ? Math.floor(new Date($("iExp").value).getTime() / 1000) : 0;
+    await sendTx(`issueCredential ${id}`, () => contract.issueCredential(id, holder, hash, exp));
+  } catch (e) { logEntry(`<b>issueCredential</b> gagal: <span class="warn">${esc(niceError(e))}</span>`, true); }
+});
+
+$("btnRevoke").addEventListener("click", () => {
+  const id = $("rId").value.trim(), reason = $("rReason").value.trim();
+  sendTx(`revokeCredential ${id}`, () => contract.revokeCredential(id, reason));
+});
+
+$("btnGrant").addEventListener("click", () => {
+  const id = $("gId").value.trim(), ver = $("gVer").value.trim();
+  if (!ethers.isAddress(ver)) { logEntry(`<b>grantAccess</b> gagal: <span class="warn">alamat verifier tidak valid</span>`, true); return; }
+  sendTx(`grantAccess ${id}`, () => contract.grantAccess(id, ver));
+});
+
+$("btnMine").addEventListener("click", async () => {
+  const box = $("mine");
+  try {
+    needContract();
+    box.textContent = "Memuat...";
+    const total = Number(await contract.totalCredentials());
+    const rows = [];
+    for (let i = 0; i < total; i++) {
+      const id = await contract.getCredentialIdByIndex(i);
+      const c = await contract.getCredential(id);
+      if (c.holder.toLowerCase() !== me.toLowerCase()) continue;
+      const v = await contract.verifyCredential(id, c.docHash);
+      rows.push(`<tr><td>${esc(id)}</td><td class="mono">${esc(c.issuer)}</td><td>${esc(fmtTime(c.expiresAt))}</td><td>${esc(STATUS[Number(v.status)])}</td><td><button class="sec" data-fill="${esc(id)}">Pilih</button></td></tr>`);
+    }
+    box.innerHTML = rows.length
+      ? `<table><tr><th>ID</th><th>Issuer</th><th>Kedaluwarsa</th><th>Status</th><th></th></tr>${rows.join("")}</table>`
+      : `<span class="muted">Tidak ada kredensial atas alamat ini (dari ${total} kredensial di kontrak).</span>`;
+    box.querySelectorAll("[data-fill]").forEach((b) => b.addEventListener("click", () => { $("gId").value = b.dataset.fill; }));
+  } catch (e) { box.innerHTML = `<span class="warn">${esc(niceError(e))}</span>`; }
+});
+
+$("btnVerify").addEventListener("click", async () => {
+  const box = $("vres");
+  try {
+    needContract();
+    const id = $("vId").value.trim();
+    const hash = await hashFrom($("vFile"), $("vHash"));
+    const v = await contract.verifyCredential(id, hash);
+    const st = Number(v.status);
+    box.className = "res" + (v.isValid ? "" : " bad");
+    box.innerHTML =
+      `<b>${v.isValid ? "KREDENSIAL VALID" : "TIDAK VALID"}</b> - ${esc(STATUS[st])}<br>` +
+      `Hash diperiksa: <span class="mono">${esc(hash)}</span>` +
+      (st === 0 ? "" :
+        `<br>Issuer: <span class="mono">${esc(v.issuer)}</span><br>Holder: <span class="mono">${esc(v.holder)}</span><br>Kedaluwarsa: ${esc(fmtTime(v.expiresAt))}`);
+  } catch (e) { box.className = "res bad"; box.innerHTML = `<span class="warn">${esc(niceError(e))}</span>`; }
+});
+
+$("btnAccess").addEventListener("click", async () => {
+  const box = $("vres");
+  try {
+    needContract();
+    const ok = await contract.hasAccess($("vId").value.trim(), me);
+    box.className = "res" + (ok ? "" : " bad");
+    box.textContent = ok ? "Holder telah memberi izin akses ke alamat Anda." : "Belum ada izin akses dari holder untuk alamat Anda.";
+  } catch (e) { box.className = "res bad"; box.textContent = niceError(e); }
+});
+
+/* ---------- Tab dan koneksi ---------- */
+document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
+  ["admin", "issuer", "holder", "verifier"].forEach((t) => $("p-" + t).classList.toggle("hidden", t !== b.dataset.t));
+}));
+$("btnConnect").addEventListener("click", () => setup().catch((e) => logEntry(`Koneksi gagal: <span class="warn">${esc(niceError(e))}</span>`, true)));
+$("btnUse").addEventListener("click", useAddress);
+$("btnNet").addEventListener("click", switchNet);
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged", () => location.reload());
+}
+</script>
+</body>
+</htm
