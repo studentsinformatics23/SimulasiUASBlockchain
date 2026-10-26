@@ -3,7 +3,7 @@
 **Mata Kuliah:** Blockchain (KP70067008) — Universitas Siliwangi  
 **Tahun Akademik:** 2026/2027 Ganjil  
 **Use Case:** Simulasi Penerbitan, Pencabutan, dan Verifikasi Kredensial Akademik di Jaringan Lokal Hardhat  
-**Penanggung Jawab Bagian Ini:** Anggota A (Smart Contract & Arsitektur)
+**Status Proyek:** Lengkap (Memenuhi Spesifikasi Tugas Anggota A, B, C, dan D)
 
 ---
 
@@ -21,7 +21,7 @@ Sistem ini memecahkan permasalahan pemalsuan ijazah dan inefisiensi verifikasi k
 ## 🏛️ Arsitektur Sistem
 
 Diagram arsitektur sistem memisahkan 4 lapisan utama:
-1. **Lapisan Klien / Pengguna**: Portal Admin, Portal Issuer (Fakultas), Portal Mahasiswa (Holder), dan Portal Publik (Verifier) yang diimplementasikan oleh Anggota C.
+1. **Lapisan Klien / Pengguna**: Portal Admin, Portal Issuer (Fakultas), Portal Mahasiswa (Holder), dan Portal Publik (Verifier) yang diimplementasikan pada [`frontend/index.html`](frontend/index.html).
 2. **Lapisan Web3 Bridge**: MetaMask / Provider lokal untuk transaksi berizin dan `eth_call` read-only bebas gas fee untuk verifikasi publik.
 3. **Lapisan Blockchain**: Smart contract `AcademicCredential.sol` berbasis OpenZeppelin `AccessControl` dan `Pausable` pada jaringan lokal Hardhat.
 4. **Lapisan Off-Chain**: Repositori kampus terenkripsi dan *client-side hasher* (SHA-256 / Keccak-256).
@@ -60,7 +60,7 @@ Sesuai kesepakatan bersama pada *Brief Case*:
 
 ## 🚀 Panduan Instalasi & Reproduksi Pengujian
 
-Bagi anggota tim (**Anggota B, C, dan D**), berikut langkah-langkah untuk menjalankan repositori ini secara lokal:
+Langkah-langkah untuk menjalankan repositori ini secara lokal:
 
 ### 1. Prasyarat
 - Node.js (v18 ke atas)
@@ -81,7 +81,7 @@ npx hardhat compile
 ```bash
 npx hardhat test
 ```
-*Hasil: Seluruh 35 skenario pengujian (role management, single issue, batch issue, gas limit safety, revocation, holder consent, verifikasi publik, dan pause) lulus 100%.*
+*Hasil: Seluruh 39 skenario pengujian (role management, single issue, batch issue, gas limit safety, revocation, holder consent, verifikasi publik, validasi hash input, dan pause) lulus 100%.*
 
 ### 5. Memeriksa Laporan Test Coverage
 ```bash
@@ -98,9 +98,9 @@ Pengujian smart contract `AcademicCredential.sol` menghasilkan cakupan sebagai b
 | Functions | 100% |
 | Lines | 100% |
 
-Hasil ini menunjukkan bahwa seluruh statement, fungsi, dan baris kode telah tercakup oleh pengujian yang dijalankan. Branch coverage sebesar 89.71% menunjukkan bahwa masih terdapat beberapa jalur keputusan yang belum tercakup.
+Hasil ini menunjukkan bahwa seluruh statement, fungsi, dan baris kode telah tercakup oleh pengujian yang dijalankan.
 
-Jumlah pengujian unit yang berhasil dijalankan: **35 passing**.
+Jumlah pengujian unit yang berhasil dijalankan: **39 passing**.
 
 ### 6. Menjalankan Local Blockchain & Deploy Kontrak
 Jalankan node Hardhat lokal pada terminal pertama:
@@ -113,6 +113,13 @@ Jalankan script deployment pada terminal kedua:
 npx hardhat run scripts/deploy.js --network localhost
 ```
 *Script ini akan mencetak Contract Address, Transaction Hash, daftar akun uji coba dummy, dan otomatis menerbitkan 1 kredensial contoh untuk kebutuhan pengujian frontend.*
+
+### 7. Menjalankan Antarmuka Frontend DApp
+Buka file antarmuka web langsung pada browser yang telah terpasang ekstensi MetaMask:
+```bash
+# Buka file frontend/index.html di browser
+frontend/index.html
+```
 
 ---
 
@@ -131,9 +138,28 @@ Ringkasan komparasi arsitektural antara **Ethereum/EVM Publik**, **Hyperledger F
 
 ---
 
-## 👥 Struktur Kolaborasi Tim
+## 📁 Daftar Berkas Akhir Proyek UAS (Status Pemenuhan)
 
-- **Anggota A (Selesai)**: Perancangan smart contract, arsitektur sistem, batasan on-chain/off-chain, serta evaluasi perbandingan enterprise (P1 & P4).
-- **Anggota B**: Penyusunan pengujian komprehensif, pelaporan coverage, deployment record, dan dokumentasi debugging (P2 & P3).
-- **Anggota C**: Pengembangan antarmuka frontend DApp (portal Admin, Issuer, Holder, Verifier) serta slide showcase (P2, P4, & P5).
-- **Anggota D**: Audit keamanan smart contract, analisis tata kelola, dan re-testing (P3, P4, & P5).
+Mengacu pada lembar *Pembagian Tugas UAS Blockchain*:
+
+| No | Berkas yang Dipersyaratkan | Lokasi di Repositori / Keterangan | Status |
+| :---: | :--- | :--- | :---: |
+| 1 | **README_Final** | [`README.md`](README.md) (Panduan lengkap instalasi, arsitektur, dan struktur proyek) | ✅ Siap |
+| 2 | **Laporan_UAS_Blockchain.pdf** | Disusun terpisah oleh tim menggunakan bahan dari folder `docs/` | ⏳ Siap Dihimpun |
+| 3 | **Source code smart contract dan frontend** | [`contracts/AcademicCredential.sol`](contracts/AcademicCredential.sol) & [`frontend/index.html`](frontend/index.html) | ✅ Lengkap |
+| 4 | **Folder test dan hasil pengujian** | [`test/AcademicCredential.test.js`](test/AcademicCredential.test.js) (39 passing) & Coverage | ✅ Lengkap |
+| 5 | **Deployment_Record** | [`docs/DEPLOYMENT_RECORD.md`](docs/DEPLOYMENT_RECORD.md) (Contract address & tx hash) | ✅ Lengkap |
+| 6 | **Security_Audit.pdf dan bukti perbaikan** | [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) & 4 test perbaikan audit | ✅ Siap cetak PDF |
+| 7 | **Architecture_Diagram** | [`docs/architecture-diagram.svg`](docs/architecture-diagram.svg) & [`docs/ARCHITECTURE_DESIGN.md`](docs/ARCHITECTURE_DESIGN.md) | ✅ Lengkap |
+| 8 | **Slide presentasi (maks 10 slide)** | [`docs/SLIDE_PRESENTASI.md`](docs/SLIDE_PRESENTASI.md) (Draf materi lengkap 10 slide) | ✅ Siap ekspor |
+| 9 | **Video_Demo.mp4** | Panduan skenario rekaman demo di [`docs/SLIDE_PRESENTASI.md`](docs/SLIDE_PRESENTASI.md) | ⏳ Siap direkam |
+| 10 | **Riwayat commit yang dapat ditelusuri** | Git commit log tercatat rapi per peran/kontributor | ✅ Lengkap |
+
+---
+
+## 👥 Struktur Kolaborasi & Beban Kerja Tim
+
+- **Anggota A (Smart Contract & Arsitektur)**: Perancangan smart contract, diagram arsitektur, batasan on-chain/off-chain, serta evaluasi perbandingan enterprise (P1 & P4). Berkas: [`docs/ARCHITECTURE_DESIGN.md`](docs/ARCHITECTURE_DESIGN.md) & [`docs/architecture-diagram.svg`](docs/architecture-diagram.svg).
+- **Anggota B (Testing, Deployment, & Perbaikan)**: Penyusunan 39 unit test, pelaporan coverage, deployment record, dan dokumentasi debugging (P2 & P3). Berkas: [`test/AcademicCredential.test.js`](test/AcademicCredential.test.js), [`docs/DEPLOYMENT_RECORD.md`](docs/DEPLOYMENT_RECORD.md), & [`docs/DEBUGGING_RECORD.md`](docs/DEBUGGING_RECORD.md).
+- **Anggota C (Frontend & Presentasi)**: Pembuatan frontend DApp (portal Admin, Issuer, Holder, Verifier), evaluasi privasi & skalabilitas P4, serta draf 10 slide presentasi & demo (P2, P4, & P5). Berkas: [`frontend/index.html`](frontend/index.html), [`docs/EVALUASI_PRIVASI_SKALABILITAS.md`](docs/EVALUASI_PRIVASI_SKALABILITAS.md), & [`docs/SLIDE_PRESENTASI.md`](docs/SLIDE_PRESENTASI.md).
+- **Anggota D (Audit Keamanan & Tata Kelola)**: Threat model STRIDE, audit kerentanan, re-testing, tata kelola kunci privat, kepatuhan UU PDP, dan etika regulasi (P3, P4, & P5). Berkas: [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md).
