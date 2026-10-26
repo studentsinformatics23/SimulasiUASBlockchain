@@ -81,7 +81,7 @@ npx hardhat compile
 ```bash
 npx hardhat test
 ```
-*Hasil: Seluruh 22 skenario pengujian (role management, single issue, batch issue, gas limit safety, revocation, holder consent, verifikasi publik, dan pause) lulus 100%.*
+*Hasil: Seluruh 35 skenario pengujian (role management, single issue, batch issue, gas limit safety, revocation, holder consent, verifikasi publik, dan pause) lulus 100%.*
 
 ### 5. Memeriksa Laporan Test Coverage
 ```bash
