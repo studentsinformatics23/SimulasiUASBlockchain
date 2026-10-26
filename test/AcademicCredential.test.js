@@ -253,6 +253,29 @@ describe("AcademicCredential", function () {
       expect(cred.isRevoked).to.be.true;
     });
 
+    it("Issuer tidak boleh mencabut kredensial yang diterbitkan Issuer lain", async function () {
+      await contract.connect(admin).addIssuer(holder2.address);
+
+      await contract.connect(holder2).issueCredential(
+        "UNSIL/INF/2026/002",
+        holder1.address,
+        DOC_HASH_2,
+        0
+      );
+
+      await expect(
+        contract.connect(holder2).revokeCredential(
+          "UNSIL/INF/2026/001",
+          "Percobaan lintas penerbit"
+        )
+      )
+        .to.be.revertedWithCustomError(contract, "NotCredentialIssuer")
+        .withArgs("UNSIL/INF/2026/001", holder2.address);
+
+      const cred = await contract.getCredential("UNSIL/INF/2026/001");
+      expect(cred.isRevoked).to.be.false;
+    });
+
     it("Gagal jika akun tanpa wewenang mencoba mencabut", async function () {
       await expect(
         contract.connect(unauthorized).revokeCredential("UNSIL/INF/2026/001", "Tanpa wewenang")
@@ -302,6 +325,43 @@ describe("AcademicCredential", function () {
         contract.connect(holder1).grantAccess("ID-TIDAK-ADA", verifier.address)
       ).to.be.revertedWithCustomError(contract, "CredentialNotFound")
         .withArgs("ID-TIDAK-ADA");
+    });
+
+    it("Holder dapat mencabut persetujuan akses dan memancarkan AccessRevoked", async function () {
+      const id = "UNSIL/INF/2026/001";
+
+      await contract.connect(holder1).grantAccess(id, verifier.address);
+
+      await expect(
+        contract.connect(holder1).revokeAccess(id, verifier.address)
+      )
+        .to.emit(contract, "AccessRevoked")
+        .withArgs(id, holder1.address, verifier.address);
+
+      expect(await contract.hasAccess(id, verifier.address)).to.be.false;
+    });
+
+    it("Bukan holder dilarang mencabut persetujuan akses", async function () {
+      const id = "UNSIL/INF/2026/001";
+
+      await contract.connect(holder1).grantAccess(id, verifier.address);
+
+      await expect(
+        contract.connect(unauthorized).revokeAccess(id, verifier.address)
+      ).to.be.revertedWithCustomError(contract, "NotCredentialHolder");
+
+      expect(await contract.hasAccess(id, verifier.address)).to.be.true;
+    });
+
+    it("Gagal mencabut izin yang belum pernah diberikan", async function () {
+      const id = "UNSIL/INF/2026/001";
+
+      // Belum ada pemberian izin kepada Verifier, sehingga pencabutan harus ditolak.
+      await expect(
+        contract.connect(holder1).revokeAccess(id, verifier.address)
+      )
+        .to.be.revertedWithCustomError(contract, "AccessNotGranted")
+        .withArgs(id, verifier.address);
     });
   });
 

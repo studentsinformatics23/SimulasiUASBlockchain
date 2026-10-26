@@ -65,6 +65,8 @@ contract AcademicCredential is AccessControl, Pausable {
     error InvalidBatchSize(uint256 size, uint256 max);
     error InvalidExpirationTime(uint256 expiresAt);
     error UnauthorizedCaller();
+    error NotCredentialIssuer(string id, address caller);
+    error AccessNotGranted(string id, address verifier);
 
     // --- Events ---
     event IssuerAdded(address indexed issuer, address indexed addedBy);
@@ -74,6 +76,7 @@ contract AcademicCredential is AccessControl, Pausable {
     event CredentialIssued(string indexed id, address indexed issuer, address indexed holder, bytes32 docHash);
     event CredentialRevoked(string indexed id, address indexed revoker, string reason);
     event AccessGranted(string indexed id, address indexed holder, address indexed verifier);
+    event AccessRevoked(string indexed id, address indexed holder, address indexed verifier);
 
     // --- Constructor ---
     /**
@@ -194,7 +197,9 @@ contract AcademicCredential is AccessControl, Pausable {
         string calldata id,
         string calldata reason
     ) external whenNotPaused {
-        if (!hasRole(REVOKER_ROLE, msg.sender) && !hasRole(ISSUER_ROLE, msg.sender)) {
+        bool isRevoker = hasRole(REVOKER_ROLE, msg.sender);
+        bool isIssuer = hasRole(ISSUER_ROLE, msg.sender);
+        if (!isRevoker && !isIssuer) {
             revert UnauthorizedCaller();
         }
 
@@ -204,6 +209,12 @@ contract AcademicCredential is AccessControl, Pausable {
         }
         if (cred.isRevoked) {
             revert CredentialAlreadyRevoked(id);
+        }
+
+        // Revoker is an explicitly delegated cross-institution role. An Issuer
+        // without REVOKER_ROLE may revoke only credentials it originally issued.
+        if (!isRevoker && cred.issuer != msg.sender) {
+            revert NotCredentialIssuer(id, msg.sender);
         }
 
         cred.isRevoked = true;
@@ -234,6 +245,34 @@ contract AcademicCredential is AccessControl, Pausable {
 
         _accessPermissions[id][verifier] = true;
         emit AccessGranted(id, msg.sender, verifier);
+    }
+
+    /**
+     * @notice Holder mencabut persetujuan akses yang sebelumnya diberikan kepada Verifier.
+     * @dev Ini mencabut catatan izin pada mapping consent; fungsi verifikasi publik tetap publik.
+     *      Bila sistem membutuhkan verifikasi privat, akses perlu diterapkan juga pada fungsi verifikasi.
+     * @param id Identifier kredensial milik pemanggil.
+     * @param verifier Alamat verifier yang izinnya dicabut.
+     */
+    function revokeAccess(
+        string calldata id,
+        address verifier
+    ) external whenNotPaused {
+        if (verifier == address(0)) revert InvalidAddress();
+
+        Credential storage cred = _credentials[id];
+        if (!cred.exists) {
+            revert CredentialNotFound(id);
+        }
+        if (cred.holder != msg.sender) {
+            revert NotCredentialHolder(id, msg.sender);
+        }
+        if (!_accessPermissions[id][verifier]) {
+            revert AccessNotGranted(id, verifier);
+        }
+
+        _accessPermissions[id][verifier] = false;
+        emit AccessRevoked(id, msg.sender, verifier);
     }
 
     // --- View Functions ---
