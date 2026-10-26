@@ -262,3 +262,4 @@ Paket berkas proyek UAS dikumpulkan secara lengkap pada repositori GitHub dengan
 8. **Slide Presentasi**: Berkas presentasi 10 slide resmi format PowerPoint pada [`docs/Presentasi_UAS_Blockchain.pptx`](docs/Presentasi_UAS_Blockchain.pptx).
 9. **Skenario Video Demo**: Naskah dan urutan perekaman `Video_Demo.mp4` pada [`docs/SLIDE_PRESENTASI.md`](docs/SLIDE_PRESENTASI.md).
 10. **Riwayat Commit Terverifikasi**: Riwayat commit Git per anggota yang tercatat pada GitHub.
+
