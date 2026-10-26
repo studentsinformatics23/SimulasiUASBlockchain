@@ -249,6 +249,14 @@ Kegiatan proyek UAS rancang bangun sistem simulasi verifikasi kredensial akademi
 4. Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP). Lembaran Negara Republik Indonesia Tahun 2022 Nomor 196.
 5. World Wide Web Consortium (W3C). (2022). *Verifiable Credentials Data Model v1.1*. W3C Recommendation. Diakses dari https://www.w3.org/TR/vc-data-model/
 6. Widiyasono, N. (2026). *Bahan Ajar Perkuliahan Blockchain (KP70067008)*. Jurusan Informatika, Fakultas Teknik, Universitas Siliwangi.
+7. M. M. Merlec, Md. M. Islam, Y. K. Lee, and H. P. In, "A Consortium Blockchain-Based Secure and Trusted Electronic Portfolio Management Scheme," *Sensors*, vol. 22, no. 3, pp. 1271, Feb. 2022, doi: 10.3390/s22031271.
+8. P. P. Bokariya and D. Motwani, "Decentralization of Credential Verification System using Blockchain," *IJITEE*, vol. 10, no. 11, pp. 113–117, Sept. 2021, doi: 10.35940/IJITEE.K9514.09101121.
+9. A. Rustemi, F. Dalipi, V. Atanasovski, and A. Risteski, "DIAR: a blockchain-based system for generation and verification of academic diplomas," *SN Applied Sciences*, vol. 6, no. 6, May 2024, doi: 10.1007/s42452-024-05984-1.
+10. S. Alhabeeb, N. Alrusayni, R. Almutiri, S. Alhumud, and M. A. Al-Hagery, "Blockchain and machine learning in education: a literature review," *IAES International Journal of Artificial Intelligence*, vol. 13, no. 1, pp. 581–596, Mar. 2024, doi: 10.11591/ijai.v13.i1.pp581-596.
+11. H. Sun, et al., "Design, Implementation, and Evaluation of Blockchain-Based Trusted Achievement Record System for Students in Higher Education," arXiv preprint, Apr. 2022, doi: 10.48550/arxiv.2204.12547.
+12. E. Leka and B. Selimi, "Development and Evaluation of Blockchain based Secure Application for Verification and Validation of Academic Certificates," *AETIC*, vol. 5, no. 2, pp. 22–36, Apr. 2021, doi: 10.33166/AETIC.2021.02.003.
+13. G. Maulani, Gunawan, Leli, E. A. Nabila, and W. Y. Sari, "Digital Certificate Authority with Blockchain Cybersecurity in Education," *IJCITSM*, vol. 1, no. 1, 2021, doi: 10.34306/ijcitsm.v1i1.40.
+14. M. Fartitchou, I. Lamaakal, K. E. Makkaoui, Z. E. Allali, and Y. Maleh, "BlockMEDC: Blockchain Smart Contracts for Securing Moroccan Higher Education Digital Certificates," arXiv preprint, Oct. 2024, doi: 10.48550/arxiv.2410.07258.
 
 ## **6.3 Lampiran dan Paket Berkas Akhir**
 Paket berkas proyek UAS dikumpulkan secara lengkap pada repositori GitHub dengan struktur berkas sebagai berikut:
