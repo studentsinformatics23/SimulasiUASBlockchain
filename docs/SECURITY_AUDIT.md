@@ -66,3 +66,4 @@ Anggota B telah menambahkan skenario pengujian unit tambahan untuk memverifikasi
 1. **Fase 1 (Tahun 1)**: Deployment jaringan konsorsium lokal antar-fakultas Universitas Siliwangi.
 2. **Fase 2 (Tahun 2)**: Integrasi dengan standar identitas digital terdesentralisasi W3C (*Decentralized Identifiers & Verifiable Credentials*).
 3. **Fase 3 (Tahun 3)**: Interoperabilitas nasional dengan pangkalan data PDDIKTI Kemendikbudristek.
+

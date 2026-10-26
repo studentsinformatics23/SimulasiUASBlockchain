@@ -71,3 +71,4 @@ it("Gagal menerbitkan jika holder address(0) atau docHash bytes32(0)", async fun
 ## 4. Hasil Verifikasi Pasca-Debugging
 * Pengujian unit Hardhat: 39 skenario lulus 100%.
 * Pengujian antarmuka frontend: Verifikasi berkas file langsung maupun input teks manual berhasil menghasilkan hash Keccak-256 yang konsisten dengan smart contract tanpa error `INVALID_ARGUMENT`.
+

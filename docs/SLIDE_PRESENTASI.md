@@ -114,3 +114,4 @@
 5. **Menit 03:30 - 04:30 | Portal Admin & Pencabutan (Revocation)**:
    - Peragakan pencabutan kredensial (`revokeCredential`) dengan alasan pelanggaran akademik.
    - Lakukan verifikasi ulang ➔ Status seketika berubah menjadi **Dicabut (Revoked)**.
+

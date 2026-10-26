@@ -57,3 +57,4 @@ Berdasarkan pengujian dan pengukuran eksekusi transaksi pada jaringan Hardhat:
 
 ## 4. Kesimpulan Evaluasi Frontend DApp
 Arsitektur frontend yang dihubungkan ke `AcademicCredential.sol` telah berhasil menyeimbangkan antara **transparansi pembuktian keaslian**, **kecepatan verifikasi tanpa biaya gas**, dan **perlindungan ketat privasi data mahasiswa sesuai regulasi nasional**.
+
